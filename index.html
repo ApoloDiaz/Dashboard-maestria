@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trayectorias de deterioro cognitivo en Alzheimer · EDA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap">
+<style>
+:root{--f-sans:'Poppins',system-ui,sans-serif;--f-serif:'Playfair Display',Georgia,serif}
+html,body{margin:0;background:#F3EBDD}
+body{padding:clamp(8px,2vw,24px)}
+.dash-skeleton{min-height:120px;background:linear-gradient(90deg,#EFE6D6,#F8F2E9,#EFE6D6);border-radius:10px}
+
+
+.ea{--bg:#F8F2E9;--bg2:#EFE2CE;--card:#FFFDF9;--ink:#2B2622;--mut:#6F655B;--line:#DDD2C2;--teal:#1F6F78;--rust:#B5472F;--plum:#7B4B6A;--gold:#C99A3B;--grid:#E7DECF;
+  max-width:1180px;margin:0 auto;background:var(--bg);color:var(--ink);font-family:var(--f-sans);border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.ea *{box-sizing:border-box}
+.ea .hd{padding:26px clamp(16px,3vw,32px) 22px;background:radial-gradient(circle at 96% 8%,rgba(150,160,130,.28) 0,rgba(150,160,130,0) 22%),linear-gradient(135deg,#FBF6EE,var(--bg2))}
+.ea .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--rust);font-weight:600}
+.ea h1{font-family:var(--f-serif);font-weight:700;font-size:clamp(24px,4vw,36px);line-height:1.15;margin:6px 0 8px;max-width:26ch;text-wrap:balance}
+.ea .sub{color:var(--mut);margin:0 0 14px;max-width:80ch;font-size:15px;line-height:1.5}
+.ea .chips{display:flex;gap:8px;flex-wrap:wrap}
+.ea .chip{border:1px solid var(--line);background:#FFFDF9;border-radius:999px;padding:5px 14px;font-size:13px}
+.ea .chip.t{border-color:var(--teal);color:var(--teal);background:transparent;font-weight:600}
+.ea .tabs{display:flex;gap:2px 22px;flex-wrap:wrap;padding:6px clamp(16px,3vw,32px) 0;border-bottom:1px solid var(--line)}
+.ea .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 4px;color:var(--mut);cursor:pointer;font:inherit;font-weight:600;font-size:15px}
+.ea .tab[aria-selected=true]{color:var(--rust);border-color:var(--rust)}
+.ea .tab:hover{color:var(--ink)}
+.ea .fbar{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;padding:12px clamp(16px,3vw,32px);background:rgba(255,253,249,.6);border-bottom:1px solid var(--line);font-size:13px}
+.ea .fbar label{color:var(--mut);display:flex;gap:6px;align-items:center}
+.ea .fbar .cnt{margin-left:auto;color:var(--ink);font-weight:600}
+.ea select,.ea input[type=text],.ea button.btn{font:inherit;font-size:13px;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 9px}
+.ea button.btn{cursor:pointer}.ea button.btn:hover{border-color:var(--rust);color:var(--rust)}
+.ea .body{padding:clamp(14px,3vw,28px);display:flex;flex-direction:column;gap:18px}
+.ea .page{display:flex;flex-direction:column;gap:16px}.ea .page[hidden]{display:none}
+.ea h2{font-family:var(--f-serif);font-weight:700;font-size:24px;margin:0}
+.ea h2.sec:after{content:"";display:block;width:64px;height:4px;background:var(--rust);margin-top:10px;border-radius:2px}
+.ea .lead{color:var(--mut);margin:6px 0 4px;max-width:90ch;line-height:1.5;font-size:15px}
+.ea h3{font-size:15px;font-weight:700;margin:0}
+.ea .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,10.5rem),1fr));gap:12px}
+.ea .kpi,.ea .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 20px;min-width:0;position:relative}
+.ea .kpi .v{font-family:var(--f-serif);font-weight:700;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--teal)}
+.ea .kpi .l{color:var(--mut);font-size:12.5px;margin-top:5px;line-height:1.35}
+.ea .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));gap:16px}
+.ea .note{color:var(--mut);font-size:13px;margin:3px 0 10px;line-height:1.45;max-width:85ch}
+.ea .how{color:var(--mut);font-size:12.5px;margin-top:8px;font-style:italic}
+.ea .ctl{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-size:13px}
+.ea .ctl label{display:flex;gap:6px;align-items:center;color:var(--mut)}
+.ea .box{position:relative;min-height:200px}
+.ea svg text{fill:var(--mut);font-size:11px}
+.ea .tip{position:absolute;pointer-events:none;background:#2B2622;color:#FFFDF9;border-radius:8px;padding:6px 10px;font-size:12px;white-space:nowrap;display:none;z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.ea .rev{display:flex;gap:10px;align-items:flex-start;background:#FFF1E6;border:1px solid #E8B79A;border-radius:12px;padding:10px 14px;font-size:13px;max-width:100%}
+.ea .rev b{background:var(--rust);color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;letter-spacing:.08em}
+.ea .hm{display:grid;gap:2px;font-variant-numeric:tabular-nums;font-size:12px;overflow-x:auto}
+.ea .hm div{padding:6px 6px;text-align:center;border-radius:4px;min-width:0;white-space:nowrap}
+.ea .hm .h{color:var(--mut);font-weight:600}.ea .hm .r{text-align:left;color:var(--ink)}
+.ea .hm .click{cursor:pointer}.ea .hm .click:hover{outline:2px solid var(--rust)}
+.ea .bar{display:grid;grid-template-columns:minmax(7rem,15rem) 1fr 5.5rem;gap:10px;align-items:center;font-size:13px;margin-bottom:6px}
+.ea .bar i{display:block;height:12px;border-radius:6px}
+.ea .tw{overflow-x:auto}
+.ea table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:13px}
+.ea th,.ea td{text-align:left;padding:7px 12px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.ea th{color:var(--mut);font-weight:600}.ea tbody tr{cursor:pointer}.ea tbody tr:hover{background:#F6EEE1}
+.ea .lg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:6px}
+.ea .lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+
+</style></head><body>
+
+<div class="ea">
+  <header class="hd">
+    <div class="eyebrow">Tesis de maestría · Análisis exploratorio</div>
+    <h1>Trayectorias de deterioro cognitivo en Alzheimer</h1>
+    <p class="sub">Dashboard interactivo: perfil de los pacientes al inicio, calidad de los datos, trayectorias individuales y evidencia de deterioro en 13 pruebas neuropsicológicas, con evaluaciones a los 0, 12 y 18 meses.</p>
+    <div class="chips" id="chips" data-source="long">
+      <span class="chip t">Santiago Díaz</span>
+      <span class="chip">Maestría en Ingeniería Biomédica · Universidad del Norte</span>
+      <span class="chip" id="chip-n">—</span>
+    </div>
+  </header>
+  <nav class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-tab="resumen" aria-selected="true">1 · Resumen</button>
+    <button class="tab" role="tab" data-tab="cohorte" aria-selected="false">2 · Cohorte basal</button>
+    <button class="tab" role="tab" data-tab="calidad" aria-selected="false">3 · Calidad y ceros</button>
+    <button class="tab" role="tab" data-tab="trayectorias" aria-selected="false">4 · Trayectorias</button>
+    <button class="tab" role="tab" data-tab="deterioro" aria-selected="false">5 · Deterioro</button>
+    <button class="tab" role="tab" data-tab="relaciones" aria-selected="false">6 · Relaciones</button>
+  </nav>
+  <div class="fbar" id="fbar">
+    <strong>Filtros</strong>
+    <label for="f-sex">Sexo <select id="f-sex"><option value="all">Todos</option><option value="1">Mujeres</option><option value="0">Hombres</option></select></label>
+    <label for="f-edu">Educación <select id="f-edu"><option value="all">Todas</option><option value="lo">≤5 años</option><option value="hi">&gt;5 años</option></select></label>
+    <label for="f-sev">Gravedad basal (MMSE) <select id="f-sev"><option value="all">Todas</option><option value="0">≥25 (normal)</option><option value="1">18–24</option><option value="2">10–17</option><option value="3">&lt;10</option></select></label>
+    <button class="btn" id="f-reset">Limpiar filtros</button>
+    <span class="cnt" id="cnt">—</span>
+  </div>
+
+  <div class="body">
+  <section class="page" id="p-resumen">
+    <div><h2 class="sec">Resumen</h2><p class="lead">Las cifras cambian con los filtros de arriba. Usa las pestañas para explorar cada tema y haz clic en una prueba para ver sus trayectorias.</p></div>
+    <div class="kpis" id="kpis" data-source="long">
+      <div class="kpi"><div class="v" id="k-n">—</div><div class="l">pacientes seleccionados</div></div>
+      <div class="kpi"><div class="v" id="k-fem">—</div><div class="l">mujeres</div></div>
+      <div class="kpi"><div class="v" id="k-age">—</div><div class="l">edad media al inicio (años)</div></div>
+      <div class="kpi"><div class="v" id="k-mmse">—</div><div class="l">MMSE basal, mediana</div></div>
+      <div class="kpi"><div class="v" id="k-chg">—</div><div class="l">cambio del MMSE entre el mes 0 y el 18 (mediana, puntos)</div></div>
+      <div class="kpi"><div class="v" id="k-z">—</div><div class="l">con MMSE = 0 en el mes 18 (en el mes 0: <span id="k-z0">—</span>)</div></div>
+    </div>
+    <p class="lead" id="take" data-source="long">—</p>
+    <div class="grid">
+      <div class="card"><h3>MMSE: un paciente por línea</h3><p class="note">La línea gruesa es la media con su intervalo de confianza del 95 %. Pasa el cursor por una línea para ver el paciente.</p><div class="box" id="sp-resumen" data-source="long"></div></div>
+      <div class="card"><h3>¿En qué pruebas hay deterioro?</h3><p class="note">Pendiente por año en desviaciones estándar basales. A la izquierda de cero = empeora (FAST se lee al revés). Azul = significativo tras corrección de Holm. Haz clic en una fila para ver sus trayectorias. Usa los 118 pacientes, sin filtros.</p><div class="box" id="forest-resumen" data-source="lmm"></div></div>
+    </div>
+    <div class="rev"><b>REVISAR</b><span>Entre un tercio y la mitad de las mediciones valen 0 y la proporción crece con el tiempo. No está definido si 0 es «no se aplicó» o un puntaje real.</span></div>
+  </section>
+
+  <section class="page" id="p-cohorte" hidden>
+    <div><h2 class="sec">Cohorte basal</h2><p class="lead">Quiénes son los pacientes en la evaluación inicial. Cada barra cuenta pacientes; la línea punteada marca la mediana.</p></div>
+    <div class="grid">
+      <div class="card"><h3>Edad al inicio del estudio</h3><p class="note" id="n-age">—</p><div class="box" id="h-age" data-source="long"></div></div>
+      <div class="card"><h3>Edad de inicio de la enfermedad (AOO)</h3><p class="note" id="n-aoo">—</p><div class="box" id="h-aoo" data-source="long"></div></div>
+      <div class="card"><h3>Años de educación</h3><p class="note" id="n-edu">—</p><div class="box" id="h-edu" data-source="long"></div></div>
+      <div class="card"><h3>MMSE basal</h3><p class="note" id="n-mmse">—</p><div class="box" id="h-mmse" data-source="long"></div></div>
+    </div>
+    <div class="rev" id="rev-aoo" data-source="long" hidden><b>REVISAR</b><span id="rev-aoo-t"></span></div>
+    <div class="card"><h3>Comorbilidades y antecedentes</h3><p class="note">Porcentaje de pacientes con el antecedente, sobre quienes tienen dato. Corresponde a los 118 pacientes (no cambia con los filtros). Solo aparecen los que tienen al menos un caso.</p><div id="comorb" data-source="comorb"></div></div>
+  </section>
+
+  <section class="page" id="p-calidad" hidden>
+    <div><h2 class="sec">Calidad de los datos y ceros</h2><p class="lead">En los meses 12 y 18 casi no hay celdas vacías: cuando falta una medición aparece como 0. Haz clic en el nombre de una prueba para ver sus trayectorias.</p></div>
+    <div class="rev"><b>REVISAR</b><span>El codebook indica que 0 puede significar «no se aplicó». Si es así, esos ceros no son puntajes y distorsionan las pendientes.</span></div>
+    <div class="grid">
+      <div class="card"><h3>Mediciones iguales a 0</h3><p class="note">Porcentaje por prueba y visita. Más oscuro = más ceros.</p><div class="hm" id="hm-zero" data-source="long"></div></div>
+      <div class="card"><h3>Valores faltantes</h3><p class="note">Pacientes sin dato por prueba y visita.</p><div class="hm" id="hm-miss" data-source="long"></div></div>
+    </div>
+    <div class="card"><h3>MMSE = 0: patrones por paciente</h3><p class="note">Pacientes con MMSE en las tres visitas. Casi nadie vuelve a un valor positivo después de un 0.</p><div class="box" id="zpat" data-source="long" style="min-height:170px"></div></div>
+  </section>
+
+  <section class="page" id="p-trayectorias" hidden>
+    <div><h2 class="sec">Trayectorias</h2><p class="lead">Elige una prueba y compara grupos. Cada línea fina es un paciente y las gruesas son las medias con IC 95 %.</p></div>
+    <div class="card">
+      <div class="ctl"><label for="sel-test">Prueba <select id="sel-test"></select></label>
+        <label for="sel-by">Comparar por <select id="sel-by"><option value="none">Sin comparación</option><option value="sex">Sexo</option><option value="edu">Educación</option><option value="sev">Gravedad basal (MMSE)</option></select></label>
+        <label><input type="checkbox" id="chk-zero"> Tratar 0 como faltante</label>
+        <label for="f-pid">Paciente <input type="text" id="f-pid" placeholder="ID" size="5"></label></div>
+      <h3 id="t-title">—</h3>
+      <div class="box" id="sp-main" data-source="long" style="min-height:380px"></div>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Cambio individual entre el mes 0 y el 18</h3><p class="note" id="chg-note">—</p><div class="box" id="chg-main" data-source="long"></div><p class="how">Barras a la izquierda de cero = pacientes que empeoran (en FAST, a la derecha).</p></div>
+      <div class="card"><h3>Media (DE) por visita, todas las pruebas</h3><p class="note">Mismo formato de la tabla del artículo. Haz clic en una prueba para cargarla arriba.</p><div class="hm" id="hm-vis" data-source="long"></div></div>
+    </div>
+  </section>
+
+  <section class="page" id="p-deterioro" hidden>
+    <div><h2 class="sec">Evidencia de deterioro</h2><p class="lead">Modelo mixto por prueba: puntaje ~ tiempo (años) + sexo + edad basal + educación, con intercepto y pendiente aleatorios por paciente. Es un tamizaje gaussiano con los 118 pacientes; los filtros no lo modifican.</p></div>
+    <div class="card"><div class="ctl"><label for="sel-sort">Ordenar por <select id="sel-sort"><option value="beta">Magnitud del cambio</option><option value="p">Significancia</option><option value="code">Código</option></select></label></div>
+      <div class="box" id="forest-main" data-source="lmm"></div><p class="how">Punto = pendiente estimada; línea = IC 95 %. Haz clic en una fila para ver sus trayectorias.</p></div>
+    <div class="card"><h3>Resultados del modelo</h3><div class="tw"><table id="tbl-lmm" data-source="lmm" data-row-key="code"><thead><tr><th data-field="code">Código</th><th data-field="test">Prueba</th><th data-field="beta">β por año</th><th data-field="se">EE</th><th data-field="p_holm">p (Holm)</th><th data-field="evidence">Deterioro</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="rev"><b>REVISAR</b><span>Para conteos y tiempos conviene un GLMM (Poisson o Gamma) además de este modelo gaussiano. FAST casi no varía y no sirve para ver cambio en 18 meses.</span></div>
+  </section>
+
+  <section class="page" id="p-relaciones" hidden>
+    <div><h2 class="sec">Relaciones al inicio</h2><p class="lead">Correlación de Spearman entre pruebas, edad, edad de inicio y educación en la línea base. Cambia con los filtros (se necesitan al menos 8 pacientes por par).</p></div>
+    <div class="card" style="position:relative"><div class="hm" id="hm-corr" data-source="long"></div><p class="how">Azul = positiva, rojo = negativa. Parte de la correlación entre pruebas viene de los ceros compartidos.</p></div>
+  </section>
+  </div>
+</div>
+
+
+<script src="d3.min.js"></script>
+<script src="data.js"></script>
+<script>window.dash={data:function(id){return {status:'ok',data:window.DATA[id]};},onData:function(fn){fn();},setLink:function(){},colors:['#1F6F78','#B5472F','#7B4B6A','#C99A3B']};</script>
+<script>
+const E = (id) => document.getElementById(id);
+const VT = [0, 12, 18];
+const COL = ['#1F6F78', '#B5472F', '#7B4B6A', '#C99A3B'];
+const S = { tab: 'resumen', sex: 'all', edu: 'all', sev: 'all', test: null, by: 'none', zero: false, pid: '' };
+const fx = (n, d) => (n === null || n === undefined || isNaN(n) ? '–' : Number(n).toFixed(d === undefined ? 1 : d).replace('.', ','));
+const px = (x) => (x === null || isNaN(x) ? '–' : Math.round(x * 100) + ' %');
+const sg = (n, d) => (n > 0 ? '+' : n < 0 ? '−' : '') + fx(Math.abs(n), d);
+const num = (x) => (x === null || x === undefined || x === '' ? null : Number(x));
+
+const getLong = () => {
+  const g = dash.data('long'); if (g.status !== 'ok') return null;
+  const by = new Map();
+  g.data.forEach((r) => { if (!by.has(r.ID)) by.set(r.ID, { id: r.ID, v: {} }); const p = by.get(r.ID); p.v[r.visit] = r; if (Number(r.visit) === 0) { p.sex = Number(r.Gender); p.age = num(r.Age); p.aoo = num(r.AOO); p.edu = num(r.Education); } });
+  return Array.from(by.values());
+};
+const tests = () => { const g = dash.data('lmm'); return g.status === 'ok' ? g.data : []; };
+const val = (p, t, code, zeroNA) => { const r = p.v[t]; if (!r) return null; const x = num(r[code]); if (x === null) return null; return (zeroNA && code !== 'y26' && x === 0) ? null : x; };
+const sevOf = (p) => { const x = val(p, 0, 'y1'); return x === null ? -1 : x >= 25 ? 0 : x >= 18 ? 1 : x >= 10 ? 2 : 3; };
+const pass = (p) => (S.sex === 'all' || p.sex === Number(S.sex)) && (S.edu === 'all' || (p.edu !== null && (S.edu === 'lo' ? p.edu <= 5 : p.edu > 5))) && (S.sev === 'all' || sevOf(p) === Number(S.sev));
+const pts = () => { const P = getLong(); return P ? P.filter(pass) : null; };
+const median = (a) => d3.median(a);
+
+const tipOf = (box) => { let t = box.querySelector(':scope > .tip'); if (!t) { t = document.createElement('div'); t.className = 'tip'; box.appendChild(t); } return t; };
+const showTip = (box, ev, lines) => { const t = tipOf(box), b = box.getBoundingClientRect(); t.replaceChildren(); lines.forEach((l) => { const d = document.createElement('div'); d.textContent = l; t.appendChild(d); }); t.style.display = 'block'; t.style.left = Math.max(0, Math.min(ev.clientX - b.left + 12, b.width - t.offsetWidth - 4)) + 'px'; t.style.top = Math.max(0, ev.clientY - b.top - 40) + 'px'; };
+const hideTip = (box) => { const t = box.querySelector(':scope > .tip'); if (t) t.style.display = 'none'; };
+const failed = (el) => { el.replaceChildren(); const d = document.createElement('div'); d.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:6px;min-height:120px;color:#6F655B'; const dot = document.createElement('span'); dot.style.cssText = 'width:.375rem;height:.375rem;border-radius:50%;background:#B5472F'; d.append(dot, 'Failed to load'); el.appendChild(d); };
+const pending = (el) => { el.replaceChildren(); el.classList.add('dash-skeleton'); };
+const empty = (el, msg) => { el.classList.remove('dash-skeleton'); el.replaceChildren(); const d = document.createElement('div'); d.style.cssText = 'color:#6F655B;font-size:13px;padding:16px 0'; d.textContent = msg; el.appendChild(d); };
+
+function svgBox(box, h, m) {
+  box.classList.remove('dash-skeleton');
+  const t = box.querySelector(':scope > .tip'); box.replaceChildren(); if (t) box.appendChild(t);
+  const w = Math.max(260, box.clientWidth || 300);
+  const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${w} ${h}`).style('display', 'block');
+  return { svg, w, h, iw: w - m.l - m.r, ih: h - m.t - m.b, g: svg.append('g').attr('transform', `translate(${m.l},${m.t})`) };
+}
+const axisStyle = (a) => { a.attr('font-size', null).attr('font-family', null); a.selectAll('path,line').attr('stroke', '#CFC3B1'); a.selectAll('text').attr('fill', '#6F655B').style('font-size', '11px'); };
+const gridY = (a) => { axisStyle(a); a.selectAll('line').attr('stroke', '#E7DECF'); a.select('.domain').remove(); };
+
+function spaghetti(box, P, code, o) {
+  o = o || {};
+  const S0 = svgBox(box, o.h || 300, { l: 40, r: 32, t: 10, b: 30 });
+  const ids = P.filter((p) => VT.some((t) => val(p, t, code, o.zeroNA) !== null));
+  if (!ids.length) { empty(box, 'Sin pacientes para esta combinación de filtros.'); return; }
+  const ymax = d3.max(ids, (p) => d3.max(VT, (t) => val(p, t, code, o.zeroNA))) || 1;
+  const x = d3.scaleLinear([0, 18], [0, S0.iw]), y = d3.scaleLinear([0, ymax], [S0.ih, 0]).nice();
+  S0.g.append('g').call(d3.axisLeft(y).ticks(5).tickSize(-S0.iw)).call(gridY);
+  S0.g.append('g').attr('transform', `translate(0,${S0.ih})`).call(d3.axisBottom(x).tickValues(VT).tickFormat((d) => 'mes ' + d)).call(axisStyle);
+  const groups = o.group || [{ name: 'Todos', test: () => true }];
+  const line = d3.line().x((d) => x(d.t)).y((d) => y(d.v));
+  const segOf = (p) => VT.map((t) => ({ t, v: val(p, t, code, o.zeroNA) })).filter((d) => d.v !== null);
+  const hit = o.pid ? String(o.pid).trim() : '';
+  ids.forEach((p) => {
+    const gi = groups.findIndex((g) => g.test(p)); if (gi < 0) return;
+    const seg = segOf(p); if (seg.length < 2) return;
+    const isHit = hit && String(p.id) === hit;
+    const path = S0.g.append('path').attr('d', line(seg)).attr('fill', 'none').attr('stroke', isHit ? '#2B2622' : (o.group ? COL[gi] : '#B8AD9C')).attr('stroke-opacity', isHit ? 1 : (o.group ? .3 : .5)).attr('stroke-width', isHit ? 3 : 1);
+    S0.g.append('path').attr('d', line(seg)).attr('fill', 'none').attr('stroke', 'transparent').attr('stroke-width', 9).style('cursor', 'pointer')
+      .on('mousemove', (ev) => { path.attr('stroke-width', 3).attr('stroke-opacity', 1).attr('stroke', '#2B2622'); showTip(box, ev, [`Paciente ${p.id}`, VT.map((t) => { const v = val(p, t, code, o.zeroNA); return `mes ${t}: ${v === null ? '–' : fx(v, v % 1 ? 1 : 0)}`; }).join(' · ')]); })
+      .on('mouseleave', () => { path.attr('stroke-width', isHit ? 3 : 1).attr('stroke-opacity', isHit ? 1 : (o.group ? .3 : .5)).attr('stroke', isHit ? '#2B2622' : (o.group ? COL[gi] : '#B8AD9C')); hideTip(box); });
+  });
+  groups.forEach((gr, gi) => {
+    const col = o.group ? COL[gi] : COL[0];
+    const mm = VT.map((tt) => { const vs = ids.filter(gr.test).map((p) => val(p, tt, code, o.zeroNA)).filter((v) => v !== null); const mu = d3.mean(vs), sd = d3.deviation(vs) || 0; return { t: tt, mu, ci: vs.length > 1 ? 1.96 * sd / Math.sqrt(vs.length) : 0, n: vs.length }; }).filter((d) => d.mu !== undefined && !isNaN(d.mu));
+    if (!mm.length) return;
+    S0.g.append('path').attr('d', line(mm.map((d) => ({ t: d.t, v: d.mu })))).attr('fill', 'none').attr('stroke', col).attr('stroke-width', 3).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+    mm.forEach((d) => {
+      S0.g.append('line').attr('x1', x(d.t)).attr('x2', x(d.t)).attr('y1', y(Math.max(0, d.mu - d.ci))).attr('y2', y(d.mu + d.ci)).attr('stroke', col).attr('stroke-width', 1.6);
+      S0.g.append('circle').attr('cx', x(d.t)).attr('cy', y(d.mu)).attr('r', 5).attr('fill', col).attr('stroke', '#FFFDF9').attr('stroke-width', 2).style('cursor', 'pointer')
+        .on('mousemove', (ev) => showTip(box, ev, [`${gr.name} · mes ${d.t}`, `Media ${fx(d.mu)} (IC ${fx(Math.max(0, d.mu - d.ci))} a ${fx(d.mu + d.ci)})`, `n = ${d.n}`])).on('mouseleave', () => hideTip(box));
+    });
+  });
+  if (o.group) { const lg = document.createElement('div'); lg.className = 'lg'; groups.forEach((gr, gi) => { const s = document.createElement('span'); const i = document.createElement('i'); i.style.background = COL[gi]; s.append(i, `${gr.name} (n=${ids.filter(gr.test).length})`); lg.appendChild(s); }); box.appendChild(lg); }
+}
+
+function histogram(box, values, lo, hi, step, unit, color) {
+  if (!values.length) { empty(box, 'Sin datos para esta combinación de filtros.'); return; }
+  const S0 = svgBox(box, 220, { l: 34, r: 10, t: 8, b: 30 });
+  const bins = d3.bin().domain([lo, hi + step]).thresholds(d3.range(lo, hi + step, step))(values);
+  const x = d3.scaleLinear([lo, hi + step], [0, S0.iw]), y = d3.scaleLinear([0, d3.max(bins, (b) => b.length) || 1], [S0.ih, 0]).nice();
+  S0.g.append('g').call(d3.axisLeft(y).ticks(4).tickSize(-S0.iw)).call(gridY);
+  S0.g.append('g').attr('transform', `translate(0,${S0.ih})`).call(d3.axisBottom(x).ticks(6)).call(axisStyle);
+  bins.forEach((b) => {
+    S0.g.append('rect').attr('x', x(b.x0) + 1).attr('y', y(b.length)).attr('width', Math.max(1, x(b.x1) - x(b.x0) - 2)).attr('height', S0.ih - y(b.length)).attr('rx', 3).attr('fill', color || COL[0]).style('cursor', 'pointer')
+      .on('mousemove', (ev) => showTip(box, ev, [`${fx(b.x0, b.x0 % 1 ? 1 : 0)} a ${fx(b.x1, b.x1 % 1 ? 1 : 0)} ${unit}`, `${b.length} pacientes`])).on('mouseleave', () => hideTip(box));
+  });
+  const md = d3.median(values);
+  S0.g.append('line').attr('x1', x(md)).attr('x2', x(md)).attr('y1', 0).attr('y2', S0.ih).attr('stroke', COL[1]).attr('stroke-width', 2).attr('stroke-dasharray', '4 3');
+}
+
+function forest(box, rows) {
+  const m = { l: 130, r: 16, t: 10, b: 38 };
+  const S0 = svgBox(box, rows.length * 27 + m.t + m.b, m);
+  const xmin = Math.min(-0.1, d3.min(rows, (r) => r.lo) - 0.05), xmax = Math.max(0.1, d3.max(rows, (r) => r.hi) + 0.05);
+  const x = d3.scaleLinear([xmin, xmax], [0, S0.iw]), y = d3.scaleBand(rows.map((r) => r.code), [0, S0.ih]).padding(.3);
+  S0.g.append('g').attr('transform', `translate(0,${S0.ih})`).call(d3.axisBottom(x).ticks(5)).call(axisStyle);
+  S0.g.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 0).attr('y2', S0.ih).attr('stroke', '#6F655B').attr('stroke-dasharray', '3 3');
+  S0.svg.append('text').attr('x', m.l + S0.iw / 2).attr('y', S0.h - 5).attr('text-anchor', 'middle').text('Pendiente por año (en desviaciones estándar basales)');
+  rows.forEach((r) => {
+    const yy = y(r.code) + y.bandwidth() / 2, sig = r.evidence === 'sí', c = sig ? COL[0] : '#B8AD9C';
+    const row = S0.g.append('g').style('cursor', 'pointer').on('click', () => goTest(r.code))
+      .on('mousemove', (ev) => showTip(box, ev, [`${r.test} (${r.code})`, `β = ${fx(r.beta, 2)} por año (EE ${fx(r.se, 2)})`, `p Holm ${r.p_holm < 0.001 ? '< 0,001' : '= ' + fx(r.p_holm, 3)}`, 'Clic: ver trayectorias'])).on('mouseleave', () => hideTip(box));
+    row.append('rect').attr('x', -m.l).attr('y', yy - 13).attr('width', m.l + S0.iw).attr('height', 26).attr('fill', 'transparent');
+    row.append('text').attr('x', -8).attr('y', yy + 4).attr('text-anchor', 'end').text(r.test);
+    row.append('line').attr('x1', x(r.lo)).attr('x2', x(r.hi)).attr('y1', yy).attr('y2', yy).attr('stroke', c).attr('stroke-width', 2.5).attr('stroke-linecap', 'round');
+    row.append('circle').attr('cx', x(r.beta_std)).attr('cy', yy).attr('r', 5.5).attr('fill', c).attr('stroke', '#FFFDF9').attr('stroke-width', 2);
+  });
+}
+
+function heat(el, rowLabels, colLabels, cell, fmt, colorFn, firstColW, onRow, tipFn) {
+  el.classList.remove('dash-skeleton'); el.replaceChildren();
+  el.style.gridTemplateColumns = `${firstColW || '8rem'} repeat(${colLabels.length}, minmax(3.2rem,1fr))`;
+  const host = el.closest('.card') || el.parentElement;
+  const add = (cls, txt, bg, fg) => { const d = document.createElement('div'); d.className = cls; d.textContent = txt; if (bg) d.style.background = bg; if (fg) d.style.color = fg; el.appendChild(d); return d; };
+  add('h', '');
+  colLabels.forEach((c) => add('h', c));
+  rowLabels.forEach((rl, i) => {
+    const r = add('r' + (onRow ? ' click' : ''), rl); if (onRow) r.addEventListener('click', () => onRow(i));
+    colLabels.forEach((c, j) => { const v = cell(i, j); const d = add('c', v === null ? '–' : fmt(v), v === null ? null : colorFn(v)); if (tipFn) { d.addEventListener('mousemove', (ev) => { host.style.position = 'relative'; const t = host.querySelector(':scope > .tip') || host.appendChild(Object.assign(document.createElement('div'), { className: 'tip' })); const b = host.getBoundingClientRect(); t.replaceChildren(); tipFn(i, j, v).forEach((l) => { const q = document.createElement('div'); q.textContent = l; t.appendChild(q); }); t.style.display = 'block'; t.style.left = Math.max(0, Math.min(ev.clientX - b.left + 12, b.width - t.offsetWidth - 4)) + 'px'; t.style.top = Math.max(0, ev.clientY - b.top - 40) + 'px'; }); d.addEventListener('mouseleave', () => { const t = host.querySelector(':scope > .tip'); if (t) t.style.display = 'none'; }); } });
+  });
+}
+
+function barRows(el, rows, color) { el.classList.remove('dash-skeleton'); el.replaceChildren(); const mx = d3.max(rows, (r) => r.v) || 1; rows.forEach((r) => { const row = document.createElement('div'); row.className = 'bar'; const a = document.createElement('span'); a.textContent = r.label; const b = document.createElement('i'); b.style.width = Math.max(2, 100 * r.v / mx) + '%'; b.style.background = r.color || color; const n = document.createElement('span'); n.textContent = r.text; row.append(a, b, n); el.appendChild(row); }); }
+
+function rank(a) { const idx = a.map((v, i) => [v, i]).sort((p, q) => p[0] - q[0]); const r = new Array(a.length); let i = 0; while (i < idx.length) { let j = i; while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++; const avg = (i + j) / 2 + 1; for (let k = i; k <= j; k++) r[idx[k][1]] = avg; i = j + 1; } return r; }
+function spearman(a, b) { const xs = [], ys = []; for (let i = 0; i < a.length; i++) if (a[i] !== null && b[i] !== null) { xs.push(a[i]); ys.push(b[i]); } if (xs.length < 8) return [null, xs.length]; const rx = rank(xs), ry = rank(ys), mx = d3.mean(rx), my = d3.mean(ry); let sxy = 0, sx = 0, sy = 0; for (let i = 0; i < rx.length; i++) { sxy += (rx[i] - mx) * (ry[i] - my); sx += (rx[i] - mx) ** 2; sy += (ry[i] - my) ** 2; } return sx && sy ? [sxy / Math.sqrt(sx * sy), xs.length] : [null, xs.length]; }
+
+function goTest(code) { S.test = code; E('sel-test').value = code; switchTab('trayectorias'); }
+
+const draws = {
+  resumen() {
+    const P = pts(), T = tests();
+    const k = E('kpis');
+    if (P && P.length) {
+      k.classList.remove('dash-skeleton');
+      const m0 = P.map((p) => val(p, 0, 'y1')), m18 = P.map((p) => val(p, 18, 'y1'));
+      const ch = P.map((p) => { const a = val(p, 0, 'y1'), b = val(p, 18, 'y1'); return a !== null && b !== null ? b - a : null; }).filter((x) => x !== null);
+      const zp = (arr) => { const s = arr.filter((x) => x !== null); return s.length ? s.filter((x) => x === 0).length / s.length : null; };
+      E('k-n').textContent = P.length; E('k-fem').textContent = px(P.filter((p) => p.sex === 1).length / P.length);
+      E('k-age').textContent = fx(d3.mean(P.map((p) => p.age).filter((x) => x !== null)));
+      E('k-mmse').textContent = fx(median(m0.filter((x) => x !== null)), 0);
+      E('k-chg').textContent = ch.length ? sg(median(ch)) : '–';
+      E('k-z').textContent = px(zp(m18)); E('k-z0').textContent = px(zp(m0));
+      const w = ch.filter((x) => x <= -3).length, st = ch.filter((x) => x > -3 && x < 3).length, b = ch.filter((x) => x >= 3).length;
+      E('take').textContent = ch.length ? `Entre el mes 0 y el 18, ${w} de ${ch.length} pacientes pierden 3 puntos o más de MMSE, ${st} quedan estables y ${b} mejoran 3 puntos o más.` : '';
+    } else { ['k-n', 'k-fem', 'k-age', 'k-mmse', 'k-chg', 'k-z', 'k-z0'].forEach((i) => { E(i).textContent = '—'; }); E('take').textContent = P ? 'Ningún paciente cumple los filtros.' : '—'; }
+    if (P) spaghetti(E('sp-resumen'), P, 'y1', { h: 300 }); else pending(E('sp-resumen'));
+    const g = dash.data('lmm'), f = E('forest-resumen');
+    if (g.status === 'ok') forest(f, T.slice().sort((a, b) => a.beta_std - b.beta_std)); else if (g.status === 'error') failed(f); else pending(f);
+  },
+  cohorte() {
+    const P = pts(); if (!P) { ['h-age', 'h-aoo', 'h-edu', 'h-mmse'].forEach((i) => pending(E(i))); } else {
+      const mk = (id, nid, vals, lo, hi, step, unit, color) => { const v = vals.filter((x) => x !== null); histogram(E(id), v, lo, hi, step, unit, color); E(nid).textContent = v.length ? `n = ${v.length} con dato · mediana ${fx(median(v), 0)} ${unit}` : 'Sin datos'; };
+      mk('h-age', 'n-age', P.map((p) => p.age), 60, 93, 3, 'años', COL[0]);
+      mk('h-aoo', 'n-aoo', P.map((p) => p.aoo), 50, 92, 3, 'años', COL[2]);
+      mk('h-edu', 'n-edu', P.map((p) => p.edu), 0, 20, 2, 'años', COL[3]);
+      mk('h-mmse', 'n-mmse', P.map((p) => val(p, 0, 'y1')), 0, 30, 2, 'puntos', COL[1]);
+      const miss = P.filter((p) => p.aoo === null).length, r = E('rev-aoo');
+      r.hidden = miss === 0; E('rev-aoo-t').textContent = `${miss} de ${P.length} pacientes no tienen edad de inicio (vacía, 0 o mayor que la edad al inicio).`;
+    }
+    const c = dash.data('comorb'), el = E('comorb');
+    if (c.status === 'ok') barRows(el, c.data.slice().sort((a, b) => b.pct - a.pct).map((r) => ({ label: r.comorbidity, v: Number(r.pct), text: `${fx(r.pct)} % (${r.n_present})` })), COL[0]); else if (c.status === 'error') failed(el); else pending(el);
+  },
+  calidad() {
+    const P = pts(), T = tests(); if (!P || !T.length) { ['hm-zero', 'hm-miss', 'zpat'].forEach((i) => pending(E(i))); return; }
+    if (!P.length) { ['hm-zero', 'hm-miss', 'zpat'].forEach((i) => empty(E(i), 'Sin pacientes para esta combinación de filtros.')); return; }
+    const rl = T.map((t) => t.test), cl = ['Mes 0', 'Mes 12', 'Mes 18'], go = (i) => goTest(T[i].code);
+    heat(E('hm-zero'), rl, cl, (i, j) => { const vs = P.map((p) => val(p, VT[j], T[i].code)).filter((v) => v !== null); return vs.length ? vs.filter((v) => v === 0).length / vs.length : null; }, px, (v) => `rgba(181,71,47,${(0.08 + v * 0.8).toFixed(2)})`, '9.5rem', go, (i, j, v) => [`${T[i].test} · ${cl[j]}`, v === null ? 'Sin datos' : `${px(v)} de las mediciones son 0`]);
+    const mx = Math.max(1, d3.max(T, (t) => d3.max(VT, (tt) => P.filter((p) => val(p, tt, t.code) === null).length)));
+    heat(E('hm-miss'), rl, cl, (i, j) => P.filter((p) => val(p, VT[j], T[i].code) === null).length, (v) => String(v), (v) => `rgba(31,111,120,${(0.05 + v / mx * 0.75).toFixed(2)})`, '9.5rem', go, (i, j, v) => [`${T[i].test} · ${cl[j]}`, `${v} pacientes sin dato`]);
+    const full = P.filter((p) => VT.every((t) => val(p, t, 'y1') !== null)), z = (p, t) => val(p, t, 'y1') === 0;
+    const pats = [['Nunca 0', full.filter((p) => !VT.some((t) => z(p, t))).length, COL[0]], ['0 en las tres visitas', full.filter((p) => VT.every((t) => z(p, t))).length, COL[1]], ['Positivo al inicio, 0 desde el mes 12', full.filter((p) => !z(p, 0) && z(p, 12) && z(p, 18)).length, COL[1]], ['Positivo hasta el mes 12, 0 en el mes 18', full.filter((p) => !z(p, 0) && !z(p, 12) && z(p, 18)).length, COL[1]], ['0 al inicio y positivo después', full.filter((p) => z(p, 0) && (!z(p, 12) || !z(p, 18))).length, COL[3]]];
+    barRows(E('zpat'), pats.map((d) => ({ label: d[0], v: d[1], color: d[2], text: `${d[1]} (${px(d[1] / (full.length || 1))})` })), COL[0]);
+  },
+  trayectorias() {
+    const P = pts(), T = tests(); if (!P || !T.length) { ['sp-main', 'chg-main', 'hm-vis'].forEach((i) => pending(E(i))); return; }
+    const sel = E('sel-test'); if (!sel.options.length) T.forEach((t) => sel.add(new Option(t.test, t.code)));
+    if (!S.test) S.test = T[0].code; sel.value = S.test;
+    const code = S.test, tn = T.find((t) => t.code === code).test;
+    E('t-title').textContent = tn + (code === 'y26' ? ' (mayor = peor)' : '') + (S.zero && code !== 'y26' ? ' · ceros como faltantes' : '');
+    const groups = { none: null,
+      sex: [{ name: 'Mujeres', test: (p) => p.sex === 1 }, { name: 'Hombres', test: (p) => p.sex === 0 }],
+      edu: [{ name: '≤5 años de educación', test: (p) => p.edu !== null && p.edu <= 5 }, { name: '>5 años de educación', test: (p) => p.edu !== null && p.edu > 5 }],
+      sev: [{ name: 'MMSE basal ≥25', test: (p) => sevOf(p) === 0 }, { name: 'MMSE basal 18–24', test: (p) => sevOf(p) === 1 }, { name: 'MMSE basal 10–17', test: (p) => sevOf(p) === 2 }, { name: 'MMSE basal <10', test: (p) => sevOf(p) === 3 }] }[S.by];
+    spaghetti(E('sp-main'), P, code, { h: 380, zeroNA: S.zero, group: groups, pid: S.pid });
+    const ch = P.map((p) => { const a = val(p, 0, code, S.zero), b = val(p, 18, code, S.zero); return a !== null && b !== null ? b - a : null; }).filter((x) => x !== null);
+    if (ch.length) { const lo = Math.floor(d3.min(ch)), hi = Math.ceil(d3.max(ch)), step = Math.max(1, Math.round((hi - lo) / 14)); histogram(E('chg-main'), ch, Math.min(lo, -1), Math.max(hi, 1), step, 'puntos', COL[0]); E('chg-note').textContent = `${tn}: n = ${ch.length} pacientes con dato en ambas visitas · mediana ${sg(median(ch))} · ${ch.filter((x) => (code === 'y26' ? x > 0 : x < 0)).length} empeoran, ${ch.filter((x) => x === 0).length} sin cambio.`; } else { empty(E('chg-main'), 'Sin pacientes con dato en el mes 0 y el 18.'); E('chg-note').textContent = tn; }
+    const cells = (i, j) => { const vs = P.map((p) => val(p, VT[j], T[i].code)).filter((v) => v !== null); return vs.length ? { m: d3.mean(vs), s: d3.deviation(vs) || 0, n: vs.length } : null; };
+    heat(E('hm-vis'), T.map((t) => t.test), ['Mes 0', 'Mes 12', 'Mes 18'], (i, j) => cells(i, j), (c) => `${fx(c.m)} (${fx(c.s)})`, (c) => 'transparent', '9.5rem', (i) => goTest(T[i].code), (i, j, c) => [`${T[i].test} · mes ${VT[j]}`, c ? `n = ${c.n}` : 'Sin datos']);
+  },
+  deterioro() {
+    const g = dash.data('lmm'), f = E('forest-main');
+    if (g.status === 'ok') {
+      const key = E('sel-sort').value, rows = g.data.slice();
+      rows.sort(key === 'beta' ? (a, b) => a.beta_std - b.beta_std : key === 'p' ? (a, b) => a.p_holm - b.p_holm : (a, b) => Number(a.code.slice(1)) - Number(b.code.slice(1)));
+      forest(f, rows);
+      const tb = E('tbl-lmm').querySelector('tbody'); tb.replaceChildren();
+      rows.forEach((r) => { const tr = document.createElement('tr'); tr.dataset.key = r.code; tr.addEventListener('click', () => goTest(r.code)); [r.code, r.test, fx(r.beta, 2), fx(r.se, 2), r.p_holm < 0.001 ? '< 0,001' : fx(r.p_holm, 3), r.evidence === 'sí' ? 'sí' : 'no'].forEach((v) => { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }); tb.appendChild(tr); });
+    } else if (g.status === 'error') failed(f); else pending(f);
+  },
+  relaciones() {
+    const P = pts(), T = tests(), el = E('hm-corr'); if (!P || !T.length) { pending(el); return; }
+    const vars = [{ n: 'Edad', f: (p) => p.age }, { n: 'AOO', f: (p) => p.aoo }, { n: 'Educación', f: (p) => p.edu }].concat(T.map((t) => ({ n: t.test, f: (p) => val(p, 0, t.code) })));
+    const cols = vars.map((v) => P.map(v.f));
+    const names = vars.map((v) => v.n);
+    heat(el, names, names, (i, j) => spearman(cols[i], cols[j])[0], (v) => fx(v), (v) => `rgba(${v >= 0 ? '31,111,120' : '181,71,47'},${(Math.abs(v) * 0.85).toFixed(2)})`, '7.5rem', null, (i, j, v) => [`${names[i]} × ${names[j]}`, v === null ? 'Menos de 8 pacientes con ambos datos' : `ρ = ${fx(v, 2)} · n = ${spearman(cols[i], cols[j])[1]}`]);
+  },
+};
+
+function switchTab(t) {
+  S.tab = t;
+  document.querySelectorAll('#tabs .tab').forEach((x) => x.setAttribute('aria-selected', String(x.dataset.tab === t)));
+  document.querySelectorAll('.ea .page').forEach((s) => { s.hidden = s.id !== 'p-' + t; });
+  draws[t](); dash.setLink('p-' + t);
+}
+function redraw() {
+  const P = pts(), all = getLong();
+  E('cnt').textContent = P ? `${P.length} de ${all.length} pacientes` : '—';
+  E('chip-n').textContent = all ? `${all.length} pacientes · 13 pruebas · 3 evaluaciones` : '—';
+  E('fbar').hidden = S.tab === 'deterioro';
+  draws[S.tab]();
+}
+document.querySelectorAll('#tabs .tab').forEach((b) => b.addEventListener('click', () => { switchTab(b.dataset.tab); E('fbar').hidden = S.tab === 'deterioro'; }));
+[['f-sex', 'sex'], ['f-edu', 'edu'], ['f-sev', 'sev']].forEach(([id, k]) => E(id).addEventListener('change', () => { S[k] = E(id).value; redraw(); }));
+E('f-reset').addEventListener('click', () => { S.sex = S.edu = S.sev = 'all'; ['f-sex', 'f-edu', 'f-sev'].forEach((i) => { E(i).value = 'all'; }); redraw(); });
+E('sel-test').addEventListener('change', () => { S.test = E('sel-test').value; draws.trayectorias(); });
+E('sel-by').addEventListener('change', () => { S.by = E('sel-by').value; draws.trayectorias(); });
+E('chk-zero').addEventListener('change', () => { S.zero = E('chk-zero').checked; draws.trayectorias(); });
+E('f-pid').addEventListener('input', () => { S.pid = E('f-pid').value; draws.trayectorias(); });
+E('sel-sort').addEventListener('change', () => draws.deterioro());
+dash.onData(() => { redraw(); });
+</script>
+</body></html>
