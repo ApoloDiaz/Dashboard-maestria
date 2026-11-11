@@ -81,7 +81,6 @@ body{padding:clamp(8px,2vw,24px)}
     <button class="tab" role="tab" data-tab="calidad" aria-selected="false">3 · Calidad y ceros</button>
     <button class="tab" role="tab" data-tab="trayectorias" aria-selected="false">4 · Trayectorias</button>
     <button class="tab" role="tab" data-tab="deterioro" aria-selected="false">5 · Deterioro</button>
-    <button class="tab" role="tab" data-tab="relaciones" aria-selected="false">6 · Relaciones</button>
   </nav>
   <div class="fbar" id="fbar">
     <strong>Filtros</strong>
@@ -106,7 +105,7 @@ body{padding:clamp(8px,2vw,24px)}
     <p class="lead" id="take" data-source="long">—</p>
     <div class="grid">
       <div class="card"><h3>MMSE: un paciente por línea</h3><p class="note">La línea gruesa es la media con su intervalo de confianza del 95 %. Pasa el cursor por una línea para ver el paciente.</p><div class="box" id="sp-resumen" data-source="long"></div></div>
-      <div class="card"><h3>¿En qué pruebas hay deterioro?</h3><p class="note">Pendiente por año en desviaciones estándar basales. A la izquierda de cero = empeora (FAST se lee al revés). Azul = significativo tras corrección de Holm. Haz clic en una fila para ver sus trayectorias. Usa los 118 pacientes, sin filtros.</p><div class="box" id="forest-resumen" data-source="lmm"></div></div>
+      <div class="card"><h3>¿En qué pruebas hay deterioro?</h3><p class="note">Cambio por año (efecto del tiempo más el de la edad en cada visita) en los puntos originales de cada prueba. A la izquierda de cero = empeora (FAST se lee al revés). Azul = significativo tras corrección de Holm. Haz clic en una fila para ver sus trayectorias. Usa los 114 pacientes con todas las covariables, sin filtros.</p><div class="box" id="forest-resumen" data-source="lmm"></div></div>
     </div>
     <div class="rev"><b>REVISAR</b><span>Entre un tercio y la mitad de las mediciones valen 0 y la proporción crece con el tiempo. No está definido si 0 es «no se aplicó» o un puntaje real.</span></div>
   </section>
@@ -137,7 +136,7 @@ body{padding:clamp(8px,2vw,24px)}
     <div><h2 class="sec">Trayectorias</h2><p class="lead">Elige una prueba y compara grupos. Cada línea fina es un paciente y las gruesas son las medias con IC 95 %.</p></div>
     <div class="card">
       <div class="ctl"><label for="sel-test">Prueba <select id="sel-test"></select></label>
-        <label for="sel-by">Comparar por <select id="sel-by"><option value="none">Sin comparación</option><option value="sex">Sexo</option><option value="edu">Educación</option><option value="sev">Gravedad basal (MMSE)</option></select></label>
+        <label for="sel-by">Comparar por <select id="sel-by"><option value="none">Sin comparación</option><option value="sex" selected>Sexo</option><option value="edu">Educación</option><option value="sev">Gravedad basal (MMSE)</option></select></label>
         <label><input type="checkbox" id="chk-zero"> Tratar 0 como faltante</label>
         <label for="f-pid">Paciente <input type="text" id="f-pid" placeholder="ID" size="5"></label></div>
       <h3 id="t-title">—</h3>
@@ -150,17 +149,13 @@ body{padding:clamp(8px,2vw,24px)}
   </section>
 
   <section class="page" id="p-deterioro" hidden>
-    <div><h2 class="sec">Evidencia de deterioro</h2><p class="lead">Modelo mixto por prueba: puntaje ~ tiempo (años) + sexo + edad basal + educación, con intercepto y pendiente aleatorios por paciente. Es un tamizaje gaussiano con los 118 pacientes; los filtros no lo modifican.</p></div>
+    <div><h2 class="sec">Evidencia de deterioro</h2><p class="lead">Modelo mixto por prueba: puntaje ~ tiempo (años) + edad en cada visita + sexo + educación + comorbilidades (hipertensión, diabetes, enfermedad tiroidea, artrosis), con intercepto y pendiente aleatorios por paciente. Es un tamizaje gaussiano con los 114 pacientes que tienen todas las covariables; los filtros no lo modifican.</p></div>
     <div class="card"><div class="ctl"><label for="sel-sort">Ordenar por <select id="sel-sort"><option value="beta">Magnitud del cambio</option><option value="p">Significancia</option><option value="code">Código</option></select></label></div>
       <div class="box" id="forest-main" data-source="lmm"></div><p class="how">Punto = pendiente estimada; línea = IC 95 %. Haz clic en una fila para ver sus trayectorias.</p></div>
-    <div class="card"><h3>Resultados del modelo</h3><div class="tw"><table id="tbl-lmm" data-source="lmm" data-row-key="code"><thead><tr><th data-field="code">Código</th><th data-field="test">Prueba</th><th data-field="beta">β por año</th><th data-field="se">EE</th><th data-field="p_holm">p (Holm)</th><th data-field="evidence">Deterioro</th></tr></thead><tbody></tbody></table></div></div>
-    <div class="rev"><b>REVISAR</b><span>Para conteos y tiempos conviene un GLMM (Poisson o Gamma) además de este modelo gaussiano. FAST casi no varía y no sirve para ver cambio en 18 meses.</span></div>
+    <div class="card"><h3>Resultados del modelo</h3><div class="tw"><table id="tbl-lmm" data-source="lmm" data-row-key="code"><thead><tr><th data-field="code">Código</th><th data-field="test">Prueba</th><th data-field="beta_t">β tiempo</th><th data-field="beta_age">β edad</th><th data-field="beta">Cambio anual total</th><th data-field="se">EE total</th><th data-field="p_holm">p (Holm)</th><th data-field="evidence">Deterioro</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="rev"><b>REVISAR</b><span>Falta incorporar las variantes genéticas (modelo M3) cuando esté la tabla. Para conteos y tiempos conviene un GLMM (Poisson o Gamma) además de este modelo gaussiano. FAST casi no varía y no sirve para ver cambio en 18 meses.</span></div>
   </section>
 
-  <section class="page" id="p-relaciones" hidden>
-    <div><h2 class="sec">Relaciones al inicio</h2><p class="lead">Correlación de Spearman entre pruebas, edad, edad de inicio y educación en la línea base. Cambia con los filtros (se necesitan al menos 8 pacientes por par).</p></div>
-    <div class="card" style="position:relative"><div class="hm" id="hm-corr" data-source="long"></div><p class="how">Azul = positiva, rojo = negativa. Parte de la correlación entre pruebas viene de los ceros compartidos.</p></div>
-  </section>
   </div>
 </div>
 
@@ -172,7 +167,7 @@ body{padding:clamp(8px,2vw,24px)}
 const E = (id) => document.getElementById(id);
 const VT = [0, 12, 18];
 const COL = ['#1F6F78', '#B5472F', '#7B4B6A', '#C99A3B'];
-const S = { tab: 'resumen', sex: 'all', edu: 'all', sev: 'all', test: null, by: 'none', zero: false, pid: '' };
+const S = { tab: 'resumen', sex: 'all', edu: 'all', sev: 'all', test: null, by: 'sex', zero: false, pid: '' };
 const fx = (n, d) => (n === null || n === undefined || isNaN(n) ? '–' : Number(n).toFixed(d === undefined ? 1 : d).replace('.', ','));
 const px = (x) => (x === null || isNaN(x) ? '–' : Math.round(x * 100) + ' %');
 const sg = (n, d) => (n > 0 ? '+' : n < 0 ? '−' : '') + fx(Math.abs(n), d);
@@ -262,19 +257,20 @@ function histogram(box, values, lo, hi, step, unit, color) {
 function forest(box, rows) {
   const m = { l: 130, r: 16, t: 10, b: 38 };
   const S0 = svgBox(box, rows.length * 27 + m.t + m.b, m);
-  const xmin = Math.min(-0.1, d3.min(rows, (r) => r.lo) - 0.05), xmax = Math.max(0.1, d3.max(rows, (r) => r.hi) + 0.05);
+  const rlo = (r) => r.beta - 1.96 * r.se, rhi = (r) => r.beta + 1.96 * r.se;
+  const xmin = Math.min(-0.5, d3.min(rows, rlo) - 0.3), xmax = Math.max(0.5, d3.max(rows, rhi) + 0.3);
   const x = d3.scaleLinear([xmin, xmax], [0, S0.iw]), y = d3.scaleBand(rows.map((r) => r.code), [0, S0.ih]).padding(.3);
   S0.g.append('g').attr('transform', `translate(0,${S0.ih})`).call(d3.axisBottom(x).ticks(5)).call(axisStyle);
   S0.g.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 0).attr('y2', S0.ih).attr('stroke', '#6F655B').attr('stroke-dasharray', '3 3');
-  S0.svg.append('text').attr('x', m.l + S0.iw / 2).attr('y', S0.h - 5).attr('text-anchor', 'middle').text('Pendiente por año (en desviaciones estándar basales)');
+  S0.svg.append('text').attr('x', m.l + S0.iw / 2).attr('y', S0.h - 5).attr('text-anchor', 'middle').text('Cambio anual (puntos de la prueba por año)');
   rows.forEach((r) => {
     const yy = y(r.code) + y.bandwidth() / 2, sig = r.evidence === 'sí', c = sig ? COL[0] : '#B8AD9C';
     const row = S0.g.append('g').style('cursor', 'pointer').on('click', () => goTest(r.code))
-      .on('mousemove', (ev) => showTip(box, ev, [`${r.test} (${r.code})`, `β = ${fx(r.beta, 2)} por año (EE ${fx(r.se, 2)})`, `p Holm ${r.p_holm < 0.001 ? '< 0,001' : '= ' + fx(r.p_holm, 3)}`, 'Clic: ver trayectorias'])).on('mouseleave', () => hideTip(box));
+      .on('mousemove', (ev) => showTip(box, ev, [`${r.test} (${r.code})`, `Cambio anual = ${fx(r.beta, 2)} (EE ${fx(r.se, 2)})`, `p Holm ${r.p_holm < 0.001 ? '< 0,001' : '= ' + fx(r.p_holm, 3)}`, 'Clic: ver trayectorias'])).on('mouseleave', () => hideTip(box));
     row.append('rect').attr('x', -m.l).attr('y', yy - 13).attr('width', m.l + S0.iw).attr('height', 26).attr('fill', 'transparent');
     row.append('text').attr('x', -8).attr('y', yy + 4).attr('text-anchor', 'end').text(r.test);
-    row.append('line').attr('x1', x(r.lo)).attr('x2', x(r.hi)).attr('y1', yy).attr('y2', yy).attr('stroke', c).attr('stroke-width', 2.5).attr('stroke-linecap', 'round');
-    row.append('circle').attr('cx', x(r.beta_std)).attr('cy', yy).attr('r', 5.5).attr('fill', c).attr('stroke', '#FFFDF9').attr('stroke-width', 2);
+    row.append('line').attr('x1', x(rlo(r))).attr('x2', x(rhi(r))).attr('y1', yy).attr('y2', yy).attr('stroke', c).attr('stroke-width', 2.5).attr('stroke-linecap', 'round');
+    row.append('circle').attr('cx', x(r.beta)).attr('cy', yy).attr('r', 5.5).attr('fill', c).attr('stroke', '#FFFDF9').attr('stroke-width', 2);
   });
 }
 
@@ -317,7 +313,7 @@ const draws = {
     } else { ['k-n', 'k-fem', 'k-age', 'k-mmse', 'k-chg', 'k-z', 'k-z0'].forEach((i) => { E(i).textContent = '—'; }); E('take').textContent = P ? 'Ningún paciente cumple los filtros.' : '—'; }
     if (P) spaghetti(E('sp-resumen'), P, 'y1', { h: 300 }); else pending(E('sp-resumen'));
     const g = dash.data('lmm'), f = E('forest-resumen');
-    if (g.status === 'ok') forest(f, T.slice().sort((a, b) => a.beta_std - b.beta_std)); else if (g.status === 'error') failed(f); else pending(f);
+    if (g.status === 'ok') forest(f, T.slice().sort((a, b) => a.beta - b.beta)); else if (g.status === 'error') failed(f); else pending(f);
   },
   cohorte() {
     const P = pts(); if (!P) { ['h-age', 'h-aoo', 'h-edu', 'h-mmse'].forEach((i) => pending(E(i))); } else {
@@ -363,18 +359,11 @@ const draws = {
     const g = dash.data('lmm'), f = E('forest-main');
     if (g.status === 'ok') {
       const key = E('sel-sort').value, rows = g.data.slice();
-      rows.sort(key === 'beta' ? (a, b) => a.beta_std - b.beta_std : key === 'p' ? (a, b) => a.p_holm - b.p_holm : (a, b) => Number(a.code.slice(1)) - Number(b.code.slice(1)));
+      rows.sort(key === 'beta' ? (a, b) => a.beta - b.beta : key === 'p' ? (a, b) => a.p_holm - b.p_holm : (a, b) => Number(a.code.slice(1)) - Number(b.code.slice(1)));
       forest(f, rows);
       const tb = E('tbl-lmm').querySelector('tbody'); tb.replaceChildren();
-      rows.forEach((r) => { const tr = document.createElement('tr'); tr.dataset.key = r.code; tr.addEventListener('click', () => goTest(r.code)); [r.code, r.test, fx(r.beta, 2), fx(r.se, 2), r.p_holm < 0.001 ? '< 0,001' : fx(r.p_holm, 3), r.evidence === 'sí' ? 'sí' : 'no'].forEach((v) => { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }); tb.appendChild(tr); });
+      rows.forEach((r) => { const tr = document.createElement('tr'); tr.dataset.key = r.code; tr.addEventListener('click', () => goTest(r.code)); [r.code, r.test, fx(r.beta_t, 2), fx(r.beta_age, 2), fx(r.beta, 2), fx(r.se, 2), r.p_holm < 0.001 ? '< 0,001' : fx(r.p_holm, 3), r.evidence === 'sí' ? 'sí' : 'no'].forEach((v) => { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); }); tb.appendChild(tr); });
     } else if (g.status === 'error') failed(f); else pending(f);
-  },
-  relaciones() {
-    const P = pts(), T = tests(), el = E('hm-corr'); if (!P || !T.length) { pending(el); return; }
-    const vars = [{ n: 'Edad', f: (p) => p.age }, { n: 'AOO', f: (p) => p.aoo }, { n: 'Educación', f: (p) => p.edu }].concat(T.map((t) => ({ n: t.test, f: (p) => val(p, 0, t.code) })));
-    const cols = vars.map((v) => P.map(v.f));
-    const names = vars.map((v) => v.n);
-    heat(el, names, names, (i, j) => spearman(cols[i], cols[j])[0], (v) => fx(v), (v) => `rgba(${v >= 0 ? '31,111,120' : '181,71,47'},${(Math.abs(v) * 0.85).toFixed(2)})`, '7.5rem', null, (i, j, v) => [`${names[i]} × ${names[j]}`, v === null ? 'Menos de 8 pacientes con ambos datos' : `ρ = ${fx(v, 2)} · n = ${spearman(cols[i], cols[j])[1]}`]);
   },
 };
 
