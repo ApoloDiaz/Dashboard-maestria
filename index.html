@@ -153,7 +153,6 @@ body{padding:clamp(8px,2vw,24px)}
     <div class="card"><div class="ctl"><label for="sel-sort">Ordenar por <select id="sel-sort"><option value="beta">Magnitud del cambio</option><option value="p">Significancia</option><option value="code">Código</option></select></label></div>
       <div class="box" id="forest-main" data-source="lmm"></div><p class="how">Punto = pendiente estimada; línea = IC 95 %. Haz clic en una fila para ver sus trayectorias.</p></div>
     <div class="card"><h3>Resultados del modelo</h3><div class="tw"><table id="tbl-lmm" data-source="lmm" data-row-key="code"><thead><tr><th data-field="code">Código</th><th data-field="test">Prueba</th><th data-field="beta_t">β tiempo</th><th data-field="beta_age">β edad</th><th data-field="beta">Cambio anual total</th><th data-field="se">EE total</th><th data-field="p_holm">p (Holm)</th><th data-field="evidence">Deterioro</th></tr></thead><tbody></tbody></table></div></div>
-    <div class="rev"><b>REVISAR</b><span>Falta incorporar las variantes genéticas (modelo M3) cuando esté la tabla. Para conteos y tiempos conviene un GLMM (Poisson o Gamma) además de este modelo gaussiano. FAST casi no varía y no sirve para ver cambio en 18 meses.</span></div>
   </section>
 
   </div>
